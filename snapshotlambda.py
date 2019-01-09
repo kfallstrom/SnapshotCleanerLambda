@@ -3,6 +3,10 @@
     client = boto3.client('ec2', 'us-east-1'')
     ec2 = boto3.resource('ec2', 'us-east-1')
     today_date = time.strptime(today_time, '%m-%d-%Y')
+    
+    
+def lambda_handler(event, context):                      
+                          
     myAccount = boto3.client('sts').get_caller_identity()['Account']
         snapshots = client.describe_snapshots(MaxResults=1000, OwnerIds=[myAccount])['Snapshots']
             for snapshot in snapshots:
