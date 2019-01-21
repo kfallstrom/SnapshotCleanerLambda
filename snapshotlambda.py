@@ -2,7 +2,6 @@ import boto3
 import datetime
 client = boto3.client('ec2', 'us-east-1'')
 ec2 = boto3.resource('ec2', 'us-east-1')
-today_date = time.strptime(today_time, '%m-%d-%Y')
 thisyearandnextyearmondays = []
 firstmondays = []
 #365 + 365 = 730 days
