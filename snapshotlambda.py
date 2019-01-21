@@ -1,15 +1,20 @@
-    import boto3
-    import datetime
-    client = boto3.client('ec2', 'us-east-1'')
-    ec2 = boto3.resource('ec2', 'us-east-1')
-    today_date = time.strptime(today_time, '%m-%d-%Y')
-    thisyearandnextyearmondays = []
-   #365 + 365 = 730 days
-    for x in range(730):
-     #if date is a monday, add to list
-     ordinalvalue = date.today().replace(month=1,day=1).toordinal()+x
-     if date.fromordinal(ordinalvalue).weekday()==0:
-      thisyearandnextyearmondays.append(date.fromordinal(ordinalvalue))
+import boto3
+import datetime
+client = boto3.client('ec2', 'us-east-1'')
+ec2 = boto3.resource('ec2', 'us-east-1')
+today_date = time.strptime(today_time, '%m-%d-%Y')
+thisyearandnextyearmondays = []
+firstmondays = []
+#365 + 365 = 730 days
+for x in range(730):
+ #if date is a monday, add to list
+ ordinalvalue = date.today().replace(month=1,day=1).toordinal()+x
+ datevalue = date.fromordinal(ordinalvalue)
+ if datevalue.weekday()==0:
+  lastvalue = thisyearandnextyearmondays[-1]
+#  if(lastvalue.month = datevalue.month and lastvalue.year = datevalue.year and lastvalue.day<datevalue.day):
+#   print 
+  thisyearandnextyearmondays.append(datevalue)
     
     
 def lambda_handler(event, context):                      
