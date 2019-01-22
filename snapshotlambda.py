@@ -18,9 +18,12 @@ for x in range(730):
   thisyearandnextyearmondays.append(datevalue)
   if earliestmonday.month == datevalue.month and earliestmonday.year == datevalue.year and datevalue.day<earliestmonday.day:
    earliestmonday=datevalue
-  elif earliestmonday.month < datevalue.month and earliestmonday.year == datevalue.year:
+  elif earliestmonday.month <> datevalue.month and earliestmonday.year == datevalue.year:
    firstmondays.append(earliestmonday)
-   earliestmonday = None
+   earliestmonday = datevalue
+  elif earliestmonday.month <> datevalue.month and earliestmonday.month==12 and earliestmonday.year <> datevalue.year:
+   firstmondays.append(earliestmonday)
+   earliestmonday = datevalue
   else:
    continue
 for x in firstmondays:
