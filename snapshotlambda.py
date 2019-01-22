@@ -1,10 +1,10 @@
 import boto3
 from datetime import date
 client = boto3.client('ec2', 'us-east-1'')
-ec2 = boto3.resource('ec2', 'us-east-1')
-thisyearandnextyearmondays = []
+ec2 = boto3.resource('ec2', 'us-east-1')thisyearandnextyearmondays = []
 firstmondays = []
 earliestmonday = None
+todaydate = date.today()
 #365 + 365 = 730 days
 for x in range(730):
  #if date is a monday, add to list
@@ -31,6 +31,10 @@ for x in firstmondays:
 print "all mondays"
 for x in thisyearandnextyearmondays:
  print(x)
+if todaydate in thisyearandnextyearmondays:
+ print("deletedate is" + todaydate + timedelta(days=7))
+if todaydate in firstmondays:
+ print("deletedate is" + todaydate + timedelta(months=6))
 
     
 def lambda_handler(event, context):                      
