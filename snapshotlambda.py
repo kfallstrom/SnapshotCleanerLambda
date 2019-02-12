@@ -1,7 +1,8 @@
 import boto3
 from datetime import date
-client = boto3.client('ec2', 'us-east-1'')
-ec2 = boto3.resource('ec2', 'us-east-1')thisyearandnextyearmondays = []
+client = boto3.client('ec2', 'us-east-1')
+ec2 = boto3.resource('ec2', 'us-east-1')
+thisyearandnextyearmondays = []
 firstmondays = []
 earliestmonday = None
 todaydate = date.today()
