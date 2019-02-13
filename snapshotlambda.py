@@ -65,6 +65,11 @@ def lambda_handler(event, context):
 
  attributes = ['Name', 'Type', 'State', 'Private IP', 'Public IP', 'Launch Time']
  for instance_id, instance in ec2info.items():
-  for key in attributes:
-   print("{0}: {1}".format(key, instance[key]))
-   print("------")
+  # Get information for all running instances
+  instance_snapshots = ec2.snapshots.filter(Filters=[
+    {'Name':'tag:InstanceId', 'Values':[instance_id]}])
+  for snapshot in instance_snapshots:
+   print(instance_id,snapshot.id)
+  #for key in attributes:
+  # print("{0}: {1}".format(key, instance[key]))
+  # print("------")
