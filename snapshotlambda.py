@@ -1,3 +1,4 @@
+import json
 import boto3
 from datetime import date
 client = boto3.client('ec2', 'us-east-1')
@@ -19,33 +20,27 @@ for x in range(730):
   thisyearandnextyearmondays.append(datevalue)
   if earliestmonday.month == datevalue.month and earliestmonday.year == datevalue.year and datevalue.day<earliestmonday.day:
    earliestmonday=datevalue
-  elif earliestmonday.month <> datevalue.month and earliestmonday.year == datevalue.year:
+  elif earliestmonday.month != datevalue.month and earliestmonday.year == datevalue.year:
    firstmondays.append(earliestmonday)
    earliestmonday = datevalue
-  elif earliestmonday.month <> datevalue.month and earliestmonday.month==12 and earliestmonday.year <> datevalue.year:
+  elif earliestmonday.month != datevalue.month and earliestmonday.month==12 and earliestmonday.year != datevalue.year:
    firstmondays.append(earliestmonday)
    earliestmonday = datevalue
   else:
    continue
 for x in firstmondays:
  print(x)
-print "all mondays"
+print("all mondays")
 for x in thisyearandnextyearmondays:
  print(x)
 if todaydate in thisyearandnextyearmondays:
  print("deletedate is" + todaydate + timedelta(days=7))
 if todaydate in firstmondays:
  print("deletedate is" + todaydate + timedelta(months=6))
-
-    
-def lambda_handler(event, context):                      
-                          
-    myAccount = boto3.client('sts').get_caller_identity()['Account']
-        snapshots = client.describe_snapshots(MaxResults=1000, OwnerIds=[myAccount])['Snapshots']
-            for snapshot in snapshots:
-                #TODO get tags, compare deleteon tag with today_date          
-                #if snapshot['Description'].find(image) > 0:
-                    snap = client.delete_snapshot(SnapshotId=snapshot['SnapshotId'])
-                    print "Deleting snapshot " + snapshot['SnapshotId']
-                    print "-------------"
-
+ 
+def lambda_handler(event, context):
+    # TODO implement
+ myAccount = boto3.client('sts').get_caller_identity()['Account']
+ snapshots = client.describe_snapshots(MaxResults=1000, OwnerIds=[myAccount])['Snapshots']
+ for snapshot in snapshots:
+  print("Read snapshot " + snapshot['SnapshotId'])
