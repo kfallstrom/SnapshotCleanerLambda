@@ -34,7 +34,7 @@ def lambda_handler(event, context):
     # TODO implement
 # Connect to EC2
  ec2 = boto3.resource('ec2')
-
+ client = boto3.client('ec2')
 # Get information for all running instances
  running_instances = ec2.instances.filter(Filters=[{
     'Name': 'instance-state-name',
@@ -55,6 +55,20 @@ def lambda_handler(event, context):
         'Public IP': instance.public_ip_address,
         'Launch Time': instance.launch_time
         }
+    volumes = instance.volumes.all()
+    for volume in volumes:
+     tags=instance.tags
+#     snapshot = ec2.create_snapshot(
+#      VolumeId=volume.id,
+#      TagSpecifications=[
+#        {
+#        'ResourceType': 'snapshot',
+#        'Tags' : volume.tags,
+#        },
+#      ],
+#      Description='Snapshot of volume ({})'.format(volume.id),
+#      )
+      print(tags)
 
  attributes = ['Name', 'Type', 'State', 'Private IP', 'Public IP', 'Launch Time']
  for instance_id, instance in ec2info.items():
