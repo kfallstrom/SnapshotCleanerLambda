@@ -1,7 +1,9 @@
 import json
 import boto3
 from datetime import date
+from datetime import timedelta
 from collections import defaultdict
+from dateutil import parser
 thisyearandnextyearmondays = []
 firstmondays = []
 earliestmonday = None
@@ -27,15 +29,6 @@ for x in range(730):
    earliestmonday = datevalue
   else:
    continue
-for x in firstmondays:
- print(x)
-print("all mondays")
-for x in thisyearandnextyearmondays:
- print(x)
-if todaydate in thisyearandnextyearmondays:
- print("deletedate is" + todaydate + timedelta(days=7))
-if todaydate in firstmondays:
- print("deletedate is" + todaydate + timedelta(months=6))
  
 def lambda_handler(event, context):
     # TODO implement
@@ -69,7 +62,14 @@ def lambda_handler(event, context):
   instance_snapshots = ec2.snapshots.filter(Filters=[
     {'Name':'tag:InstanceId', 'Values':[instance_id]}])
   for snapshot in instance_snapshots:
-   print(instance_id,snapshot.id)
-  #for key in attributes:
-  # print("{0}: {1}".format(key, instance[key]))
-  # print("------")
+   print(instance_id,snapshot.id,snapshot.start_time.date())
+   if snapshot.start_time.date() in firstmondays:
+    deletedate = snapshot.start_time.date() + timedelta((6*365/12))
+    print("deletedate is" + deletedate.isoformat())
+   else:
+    if snapshot.start_time.date() in thisyearandnextyearmondays:
+     deletedate=snapshot.start_time.date() + timedelta(days=30)
+     print("deletedate is" + deletedate.isoformat())
+    else:
+     deletedate=snapshot.start_time.date() + timedelta(days=7)
+     print("deletedate is"+deletedate.isoformat())
