@@ -29,7 +29,21 @@ for x in range(730):
    earliestmonday = datevalue
   else:
    continue
- 
+  
+def getdeletedate(thisdate):
+ deletedate=None
+ if thisdate in firstmondays:
+  deletedate = thisdate + timedelta((6*365/12))
+  print("deletedate is" + deletedate.isoformat())
+ else:
+  if thisdate in thisyearandnextyearmondays:
+   deletedate=thisdate + timedelta(days=30)
+   print("deletedate is" + deletedate.isoformat())
+  else:
+   deletedate=thisdate + timedelta(days=7)
+   print("deletedate is"+deletedate.isoformat())
+ return deletedate
+
 def lambda_handler(event, context):
     # TODO implement
 # Connect to EC2
@@ -43,6 +57,26 @@ def lambda_handler(event, context):
 
  ec2info = defaultdict()
  for instance in running_instances:
+  print(instance)
+  volumes = ec2.volumes.filter(Filters=[{'Name':'attachment.instance-id','Values':[instance.id]}])
+  for volume in volumes:
+   print(volume.id)
+   tags = instance.tags
+   tags.append({
+            'Key': 'DeleteDate',
+            'Value': getdeletedate(date.today()).isoformat()
+        })
+   response = client.create_snapshot(
+    Description='lambda snapshot deletedate=',
+    VolumeId=volume.id,
+    TagSpecifications=[
+        {
+            'ResourceType': 'snapshot',
+            'Tags': tags,
+            
+        },
+    ],
+)
   for tag in instance.tags:
    if 'Name'in tag['Key']:
     name = tag['Value']
@@ -55,35 +89,13 @@ def lambda_handler(event, context):
         'Public IP': instance.public_ip_address,
         'Launch Time': instance.launch_time
         }
-    volumes = instance.volumes.all()
-    for volume in volumes:
-     tags=instance.tags
-#     snapshot = ec2.create_snapshot(
-#      VolumeId=volume.id,
-#      TagSpecifications=[
-#        {
-#        'ResourceType': 'snapshot',
-#        'Tags' : volume.tags,
-#        },
-#      ],
-#      Description='Snapshot of volume ({})'.format(volume.id),
-#      )
-      print(tags)
 
  attributes = ['Name', 'Type', 'State', 'Private IP', 'Public IP', 'Launch Time']
  for instance_id, instance in ec2info.items():
+  
   # Get information for all running instances
   instance_snapshots = ec2.snapshots.filter(Filters=[
     {'Name':'tag:InstanceId', 'Values':[instance_id]}])
   for snapshot in instance_snapshots:
    print(instance_id,snapshot.id,snapshot.start_time.date())
-   if snapshot.start_time.date() in firstmondays:
-    deletedate = snapshot.start_time.date() + timedelta((6*365/12))
-    print("deletedate is" + deletedate.isoformat())
-   else:
-    if snapshot.start_time.date() in thisyearandnextyearmondays:
-     deletedate=snapshot.start_time.date() + timedelta(days=30)
-     print("deletedate is" + deletedate.isoformat())
-    else:
-     deletedate=snapshot.start_time.date() + timedelta(days=7)
-     print("deletedate is"+deletedate.isoformat())
+   print(getdeletedate(snapshot.start_time.date()))
