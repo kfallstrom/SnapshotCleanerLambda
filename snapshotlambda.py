@@ -57,45 +57,32 @@ def lambda_handler(event, context):
 
  ec2info = defaultdict()
  for instance in running_instances:
-  print(instance)
-  volumes = ec2.volumes.filter(Filters=[{'Name':'attachment.instance-id','Values':[instance.id]}])
-  for volume in volumes:
-   print(volume.id)
-   tags = instance.tags
-   tags.append({
-            'Key': 'DeleteDate',
-            'Value': getdeletedate(date.today()).isoformat()
-        })
+  tags = instance.tags
+  tags.extend([{
+           'Key': 'DeleteDate',
+           'Value': getdeletedate(date.today()).isoformat()
+       },{
+           'Key': 'InstanceId',
+           'Value': instance.id
+       },{
+           'Key': 'InstanceType',
+           'Value': instance.instance_type
+       },{
+           'Key': 'InstanceInternalIp',
+           'Value': instance.private_ip_address
+       },{
+           'Key': 'InstancePublicIp',
+           'Value': instance.public_ip_address
+       }])
+  for volume in instance.volumes.all():
+   for attachment in volume.attachments:
+    tags.extend([{'Key':'MountPoint','Value':attachment.get('Device')}])
+    print(tags)
    response = client.create_snapshot(
-    Description='lambda snapshot deletedate=',
+   Description='lambda snapshot for '+instance.id+' deletedate='+getdeletedate(date.today()).isoformat(),
     VolumeId=volume.id,
-    TagSpecifications=[
-        {
+    TagSpecifications=[{
             'ResourceType': 'snapshot',
             'Tags': tags,
-            
-        },
-    ],
-)
-  for tag in instance.tags:
-   if 'Name'in tag['Key']:
-    name = tag['Value']
-    # Add instance info to a dictionary         
-    ec2info[instance.id] = {
-        'Name': name,
-        'Type': instance.instance_type,
-        'State': instance.state['Name'],
-        'Private IP': instance.private_ip_address,
-        'Public IP': instance.public_ip_address,
-        'Launch Time': instance.launch_time
-        }
-
- attributes = ['Name', 'Type', 'State', 'Private IP', 'Public IP', 'Launch Time']
- for instance_id, instance in ec2info.items():
-  
-  # Get information for all running instances
-  instance_snapshots = ec2.snapshots.filter(Filters=[
-    {'Name':'tag:InstanceId', 'Values':[instance_id]}])
-  for snapshot in instance_snapshots:
-   print(instance_id,snapshot.id,snapshot.start_time.date())
-   print(getdeletedate(snapshot.start_time.date()))
+        },],)
+   print(response)
